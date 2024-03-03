@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Filter replacement reminder</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
+<link rel="manifest" href="favicon/site.webmanifest">
+</head>
+<body>
+<p>Filter replacement reminder<br>
+<i>Works automatically only above iOS15</i></p>
+<script>
+function generateICS() {
+    var today = new Date();
+    var oneMonthFromNow = new Date(today.getTime() + (30 * 24 * 60 * 60 * 1000));
+    var formattedDateStart = oneMonthFromNow.toISOString().substring(0, 10).replace(/[-:]/g, '').slice(0, 8);
+    var formattedDateEnd = oneMonthFromNow.toISOString().substring(0, 10).replace(/[-:]/g, '').slice(0, 8);
+
+// console logs for debugging
+console.log("Today:", today);
+// console.log("Today ISO:", today.toISOString());
+console.log("One month from now:", oneMonthFromNow);
+console.log("Formatted start date:", formattedDateStart);
+console.log("Formatted end date:", formattedDateEnd);
+// console.log(generateUID());
+// console.log(FileName());
+
+    var event = {
+        created: today.toISOString(),
+        uid: generateUID(),
+        summary: 'Wymień filtr Dafi w butelce!',
+        description: 'Wymień filtr ♻',
+        organizer: 'DAFI PL',
+    };
+
+    var icsContent =
+        'BEGIN:VCALENDAR\n' +
+        'VERSION:2.0\n' +
+        'PRODID:-//Butelka Dafi - wymień filtr ♻//NONSGML Events //EN\n' +
+        'CALSCALE:GREGORIAN\n' +
+        'X-WR-CALNAME:Wymień filtr w butelce\n' +
+        'BEGIN:VEVENT\n' +
+        'CREATED:' + event.created + '\n' +
+        'UID:' + event.uid + '\n' +
+        'DTSTART;TZID=Europe/Warsaw:' + formattedDateStart + '\n' +
+        'DTEND;TZID=Europe/Warsaw:' + formattedDateEnd + '\n' +
+        'DESCRIPTION:' + event.description + '\n' +
+        'SUMMARY:' + event.summary + '\n' +
+        'ORGANIZER:' + event.organizer + '\n' +
+        'BEGIN:VALARM\n' +
+        'DESCRIPTION:' + event.summary + '\n' +
+        'END:VALARM\n' +
+        'END:VEVENT\n' +
+        'END:VCALENDAR';
+
+    return icsContent;
+}
+
+function generateUID() {
+    return Math.random().toString(36).substr(2, 10);
+}
+
+function FileName() {
+    var today = new Date();
+    var year = today.getFullYear();
+    var month = today.getMonth();
+    var day = today.getDate();
+    return year + '-' + month + '-' + day;
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    var icsContent = generateICS();
+    var blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    var link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.setAttribute('download',FileName() + '-' + generateUID() + '.ics');
+    document.body.appendChild(link);
+    link.click();
+});
+
+// console.log("GENERATED ICS:", generateICS());
+var css = "text-shadow: 1px 1px 2px black, 0 0 1em blue, 0 0 0.2em blue; font-size: 40px;"
+console.log("%c © rotkiW285", css);
+</script>
+</body>
+</html>
